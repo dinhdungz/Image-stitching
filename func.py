@@ -57,22 +57,24 @@ def stitImage(right_img, left_img):
     result = cv2.warpPerspective(right_img, homography, (w1+w2, max(h1,h2)))
     result[0:h2, 0:w2] = left_img
 
+    result = crop(result)
+
     return result
 
 def crop(img):
 
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
-    # Tạo mặt nạ nhị phân (binary mask) để xác định các vùng không đen
+    # Create binary mask to identify dest image
     _, binary_mask = cv2.threshold(gray, 1, 255, cv2.THRESH_BINARY)
 
-    # Tìm các đường viền của vùng không đen
+    # Find contours around dest image
     contours, _ = cv2.findContours(binary_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
-    # Tìm hộp bao phủ tối thiểu cho vùng không đen
+    # Find the min boundary 
     x, y, w, h = cv2.boundingRect(contours[0])
 
-    # Cắt ảnh theo hộp bao phủ
+    # crop image
     cropped_image = img[y:y+h, x:x+w]
 
     return cropped_image
@@ -83,7 +85,6 @@ r_img = cv2.imread("images/right.png")
 if __name__ == "__main__":
 
     result = stitImage(r_img, l_img)
-    cropped_image = crop(result)
-    cv2.imshow("Stit Image", cropped_image)
+    cv2.imshow("Stit Image", result)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
