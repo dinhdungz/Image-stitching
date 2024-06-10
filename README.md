@@ -1,3 +1,5 @@
+Panorama
+
 ---
 title: Panorama
 emoji: 🦀
