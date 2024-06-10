@@ -9,4 +9,4 @@ app_file: app.py
 pinned: false
 ---
 
-Panorama
+Panorama Image
