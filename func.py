@@ -55,13 +55,37 @@ def stitImage(right_img, left_img):
     h1, w1 = right_img.shape[:2]
     h2, w2 = left_img.shape[:2]
     result = cv2.warpPerspective(right_img, homography, (w1+w2, max(h1,h2)))
-    result[0:h2, 0:w2] = left_img
+    # result[0:h2, 0:w2] = left_img
+    result = blend_imgs(left_img, result, 50)
+    # cv2.imwrite("r2.jpg", result)
 
     result = crop(result)
 
     return result
 
+def blend_imgs(img1, img2, width_overlap):
+    h1, w1 = img1.shape[:2]
+    h2, w2 = img2.shape[:2]
+    for y in range(h1):
+        for x in range(w1):
+            if x >= (w1 - width_overlap):
+                img1[y,x] = img1[y,x]*((w1-x)/width_overlap)
+    
+    for y in range(h2):
+        for x in range(w1):
+            if x >= (w1 - width_overlap):
+                img2[y,x] = img2[y,x]*((x+width_overlap - w1)/width_overlap)
+    
+    img2[:,w1 - width_overlap: w1] += img1[:,-width_overlap:]
+
+    img2[0:h1, 0:w1 - width_overlap] = img1[:,0:w1 - width_overlap]
+
+    return img2
+
 def crop(img):
+
+    # if img.dtype == np.float64:
+    #     img = (img * 255).astype(np.uint8)
 
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
@@ -79,8 +103,8 @@ def crop(img):
 
     return cropped_image
 
-l_img = cv2.imread("images/left.png")
-r_img = cv2.imread("images/right.png")
+l_img = cv2.imread("images/left.jpg")
+r_img = cv2.imread("images/right.jpg")
 
 if __name__ == "__main__":
 
